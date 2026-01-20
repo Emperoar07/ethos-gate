@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pushd:*)",
+      "Bash(popd)",
+      "Bash(npm run dev:*)",
+      "Bash(curl:*)",
+      "Bash(deno run:*)",
+      "Bash(timeout /t 3 /nobreak)",
+      "Bash(powershell -Command \"cd ''C:\\\\EthosGate\\\\packages\\\\api''; deno run --allow-net --allow-env main.ts\")",
+      "Bash(powershell -Command \"Start-Sleep -Seconds 3; curl http://localhost:8000/health\")",
+      "Bash(powershell -Command \"cd ''C:\\\\EthosGate\\\\packages\\\\api''; deno task dev\")",
+      "Bash(powershell -Command \"$env:JWT_SECRET=''dev-local-secret-change-me''; cd ''C:\\\\EthosGate\\\\packages\\\\api''; deno task dev\")",
+      "Bash(deno --version:*)",
+      "Bash(powershell -Command \"cd ''C:\\\\EthosGate\\\\packages\\\\api''; deno run --allow-net --allow-env --allow-read --allow-write --env-file=.env --watch main.ts\")",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(cmd /c \"cd /d C:\\\\EthosGate\\\\packages\\\\api && set JWT_SECRET=dev-local-secret-change-me && deno run --allow-net --allow-env --allow-read --allow-write main.ts\")",
+      "Bash(C:EthosGatepackagesapistart.bat)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm dev)",
+      "Bash(pnpm dev:demo:*)",
+      "Bash(timeout:*)"
+    ]
+  }
+}

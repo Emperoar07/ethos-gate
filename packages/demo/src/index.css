@@ -1,0 +1,171 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --glass-highlight: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.4);
+  --glass-shadow: 0 24px 60px rgba(15, 23, 42, 0.18);
+  --glass-shadow-soft: 0 12px 30px rgba(15, 23, 42, 0.12);
+  --accent-ice: #59d6ff;
+  --accent-mist: #c7fff6;
+  --accent-sun: #ffd3a1;
+  --accent-ink: #0f172a;
+}
+
+body {
+  font-family: "Sora", "JetBrains Mono", sans-serif;
+  background: #eef2f6;
+  color: #0f172a;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code,
+pre {
+  font-family: "JetBrains Mono", "Sora", monospace;
+}
+
+.emoji {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-size: 1.2em;
+  line-height: 1;
+  vertical-align: middle;
+}
+
+.glass-card {
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow-soft);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+.glass-pill {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid var(--glass-border);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 9999px;
+}
+
+.glass-cta {
+  background: linear-gradient(120deg, rgba(89, 214, 255, 0.2), rgba(255, 211, 161, 0.25));
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: var(--glass-shadow);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+}
+
+.glass-panel {
+  background: rgba(15, 23, 42, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+}
+
+.liquid-blob {
+  position: absolute;
+  filter: blur(40px);
+  opacity: 0.55;
+  animation: liquid-drift 14s ease-in-out infinite;
+}
+
+.animate-delay-0 {
+  animation-delay: 0s;
+}
+
+.animation-delay-2000 {
+  animation-delay: -2s;
+}
+
+.animation-delay-4000 {
+  animation-delay: -4s;
+}
+
+.glass-orb {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(120px);
+  opacity: 0.45;
+  pointer-events: none;
+  animation: glass-float 20s ease-in-out infinite;
+  transform: translate3d(0, 0, 0);
+}
+
+.glass-orb--one {
+  width: 18rem;
+  height: 18rem;
+  background: #b5d7ff;
+  top: -6rem;
+  left: 2rem;
+  animation-duration: 22s;
+}
+
+.glass-orb--two {
+  width: 20rem;
+  height: 20rem;
+  background: #ffd6f1;
+  top: 4rem;
+  right: -3rem;
+  animation-duration: 26s;
+  animation-delay: -4s;
+}
+
+.glass-orb--three {
+  width: 22rem;
+  height: 22rem;
+  background: #c8fff3;
+  bottom: -4rem;
+  left: 40%;
+  animation-duration: 24s;
+  animation-delay: -8s;
+}
+
+@keyframes glass-float {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(20px, -18px, 0) scale(1.05);
+  }
+  66% {
+    transform: translate3d(-18px, 16px, 0) scale(0.98);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+@keyframes liquid-drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(40px, -30px, 0) scale(1.08);
+  }
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
