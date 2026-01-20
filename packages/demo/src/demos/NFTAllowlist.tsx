@@ -87,10 +87,10 @@ export function NFTAllowlistDemo() {
           </div>
 
           <div
-            className={`flex justify-between items-center p-4 rounded-xl transition-all ${
+            className={`flex justify-between items-center p-4 transition-all ${
               tier.name === "TRUSTED"
-                ? "bg-white/60 border-2 border-white/60 scale-105 shadow-sm"
-                : "glass-pill border border-white/40"
+                ? "glass-card border-2 border-white/70 scale-105 shadow-sm"
+                : "glass-card border border-white/40"
             }`}
           >
             <div className="flex items-center gap-2">
