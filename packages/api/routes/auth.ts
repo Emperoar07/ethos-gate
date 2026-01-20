@@ -1,5 +1,5 @@
 import { Router } from "oak";
-import { AuthError, issueAccessToken, verifyAccessToken, verifySignedRequest } from "../services/auth.ts";
+import { AuthError, issueAccessToken, validateAndNormalizeAddress, verifyAccessToken, verifySignedRequest } from "../services/auth.ts";
 import { getEthosScore, getEthosProfile, getTier } from "../services/ethos.ts";
 
 export const authRouter = new Router();
@@ -15,22 +15,20 @@ authRouter.post("/api/access-token", async (ctx) => {
       return;
     }
 
-    if (!/^0x[a-fA-F0-9]{40}$/.test(address)) {
-      ctx.response.status = 400;
-      ctx.response.body = { error: "Invalid Ethereum address format" };
-      return;
-    }
+    // Validate address format and checksum using EIP-55
+    const validatedAddress = validateAndNormalizeAddress(address);
+    const normalizedAddress = validatedAddress.toLowerCase();
 
-    await verifySignedRequest({ address, signature, nonce, issuedAt });
+    await verifySignedRequest({ address: normalizedAddress, signature, nonce, issuedAt });
 
-    const [score, profile] = await Promise.all([getEthosScore(address), getEthosProfile(address)]);
+    const [score, profile] = await Promise.all([getEthosScore(normalizedAddress), getEthosProfile(normalizedAddress)]);
     const tier = getTier(score);
 
-    const token = await issueAccessToken({ address, score, tier });
+    const token = await issueAccessToken({ address: normalizedAddress, score, tier });
 
     ctx.response.body = {
       token,
-      address,
+      address: normalizedAddress,
       score,
       tier,
       vouches: profile?.vouchCount || 0,

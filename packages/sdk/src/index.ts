@@ -19,6 +19,7 @@ export { useTrustTier } from "./hooks/useTrustTier";
 export { getTrustTier, getTierColor, TRUST_TIERS } from "./utils/tiers";
 export { SCORE_PRESETS, getPreset, listPresets } from "./utils/presets";
 export { calculateRequiredScore, getRecommendedRequirements, suggestTier } from "./utils/scoreCalculator";
+export { injectCommonKeyframes, injectKeyframes, KEYFRAMES } from "./utils/animations";
 
 export type { TrustTier, TierInfo } from "./utils/tiers";
 export type { PresetName, UseCaseName, ScoreRequirement } from "./utils/presets";

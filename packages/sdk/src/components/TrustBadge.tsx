@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import type { CSSProperties } from "react";
 
 import { getTrustTier } from "../utils/tiers";
+import { injectCommonKeyframes } from "../utils/animations";
 
 interface TrustBadgeProps {
   score: number;
@@ -48,28 +49,6 @@ const tierStyles: Record<string, { gradient: string; bg: string; border: string;
   }
 };
 
-// Inject keyframes for animations
-const injectKeyframes = () => {
-  if (typeof document !== "undefined") {
-    const styleId = "ethos-badge-keyframes";
-    if (!document.getElementById(styleId)) {
-      const style = document.createElement("style");
-      style.id = styleId;
-      style.textContent = `
-        @keyframes ethos-pulse-glow {
-          0%, 100% { opacity: 0.6; transform: scale(1); }
-          50% { opacity: 1; transform: scale(1.05); }
-        }
-        @keyframes ethos-score-count {
-          from { opacity: 0; transform: translateY(8px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-      `;
-      document.head.appendChild(style);
-    }
-  }
-};
-
 export function TrustBadge({ score, showScore = true, size = "md", variant = "badge" }: TrustBadgeProps) {
   const [animatedScore, setAnimatedScore] = useState(0);
   const tier = getTrustTier(score);
@@ -78,7 +57,7 @@ export function TrustBadge({ score, showScore = true, size = "md", variant = "ba
 
   // Animate score counting
   useEffect(() => {
-    injectKeyframes();
+    injectCommonKeyframes();
     if (score === 0) {
       setAnimatedScore(0);
       return;

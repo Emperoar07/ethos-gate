@@ -24,7 +24,61 @@ if (isProd && ALLOWED_ORIGINS.length === 0) {
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const RATE_LIMIT_MAX = 60;
 const RATE_LIMIT_MAX_PER_ADDRESS = 30; // Stricter limit per wallet address
+const RATE_LIMIT_STORE_MAX_SIZE = 10000; // Prevent memory bloat
 const rateLimitStore = new Map<string, { count: number; resetAt: number }>();
+
+// Periodic cleanup of expired rate limit entries (runs every 5 minutes)
+let lastCleanup = Date.now();
+const CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
+
+function cleanupRateLimitStore(): void {
+  const now = Date.now();
+  // Only run cleanup periodically
+  if (now - lastCleanup < CLEANUP_INTERVAL_MS) return;
+  lastCleanup = now;
+
+  let cleanedCount = 0;
+  for (const [key, entry] of rateLimitStore) {
+    if (now > entry.resetAt) {
+      rateLimitStore.delete(key);
+      cleanedCount++;
+    }
+  }
+  if (cleanedCount > 0) {
+    console.log(`[RateLimit] Cleaned ${cleanedCount} expired entries`);
+  }
+}
+
+function getRateLimitEntry(key: string, now: number, maxCount: number): { allowed: boolean; remaining: number } {
+  // Run cleanup opportunistically
+  cleanupRateLimitStore();
+
+  // Enforce max store size (evict oldest entries if needed)
+  if (rateLimitStore.size >= RATE_LIMIT_STORE_MAX_SIZE) {
+    const entriesToDelete = Math.floor(RATE_LIMIT_STORE_MAX_SIZE * 0.1); // Remove 10%
+    let deleted = 0;
+    for (const oldKey of rateLimitStore.keys()) {
+      rateLimitStore.delete(oldKey);
+      deleted++;
+      if (deleted >= entriesToDelete) break;
+    }
+    console.log(`[RateLimit] Store at capacity, evicted ${deleted} entries`);
+  }
+
+  const entry = rateLimitStore.get(key);
+  if (!entry || now > entry.resetAt) {
+    rateLimitStore.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    return { allowed: true, remaining: maxCount - 1 };
+  }
+
+  if (entry.count >= maxCount) {
+    return { allowed: false, remaining: 0 };
+  }
+
+  entry.count += 1;
+  rateLimitStore.set(key, entry);
+  return { allowed: true, remaining: maxCount - entry.count };
+}
 
 // Security headers middleware
 app.use(async (ctx, next) => {
@@ -77,35 +131,35 @@ app.use(async (ctx, next) => {
   const now = Date.now();
 
   // IP-based rate limiting
-  const ipEntry = rateLimitStore.get(`ip:${ip}`);
-  if (!ipEntry || now > ipEntry.resetAt) {
-    rateLimitStore.set(`ip:${ip}`, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-  } else if (ipEntry.count >= RATE_LIMIT_MAX) {
+  const ipResult = getRateLimitEntry(`ip:${ip}`, now, RATE_LIMIT_MAX);
+  if (!ipResult.allowed) {
     ctx.response.status = 429;
+    ctx.response.headers.set("Retry-After", "60");
+    ctx.response.headers.set("X-RateLimit-Limit", String(RATE_LIMIT_MAX));
+    ctx.response.headers.set("X-RateLimit-Remaining", "0");
     ctx.response.body = { error: "Rate limit exceeded. Please try again later." };
     return;
-  } else {
-    ipEntry.count += 1;
-    rateLimitStore.set(`ip:${ip}`, ipEntry);
   }
 
-  // For POST requests, also rate limit by wallet address if provided
+  // Add rate limit headers for successful requests
+  ctx.response.headers.set("X-RateLimit-Limit", String(RATE_LIMIT_MAX));
+  ctx.response.headers.set("X-RateLimit-Remaining", String(ipResult.remaining));
+
+  // For POST requests, also rate limit by combined IP+address
   if (ctx.request.method === "POST" && ctx.request.url.pathname === "/api/check-access") {
     try {
       const body = await ctx.request.body({ type: "json" }).value;
       ctx.state.parsedBody = body;
       const address = body?.address?.toLowerCase();
       if (address && /^0x[a-fA-F0-9]{40}$/.test(address)) {
-        const addrEntry = rateLimitStore.get(`addr:${address}`);
-        if (!addrEntry || now > addrEntry.resetAt) {
-          rateLimitStore.set(`addr:${address}`, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
-        } else if (addrEntry.count >= RATE_LIMIT_MAX_PER_ADDRESS) {
+        // Combined IP+address key prevents abuse from same IP with different addresses
+        const combinedKey = `combo:${ip}:${address}`;
+        const comboResult = getRateLimitEntry(combinedKey, now, RATE_LIMIT_MAX_PER_ADDRESS);
+        if (!comboResult.allowed) {
           ctx.response.status = 429;
+          ctx.response.headers.set("Retry-After", "60");
           ctx.response.body = { error: "Rate limit exceeded for this address. Please try again later." };
           return;
-        } else {
-          addrEntry.count += 1;
-          rateLimitStore.set(`addr:${address}`, addrEntry);
         }
       }
     } catch {

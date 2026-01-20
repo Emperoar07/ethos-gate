@@ -1,6 +1,6 @@
 import { Router } from "oak";
 import { getEthosScore, getEthosProfile, getTier } from "../services/ethos.ts";
-import { AuthError, issueAccessToken, verifyAccessToken, verifySignedRequest } from "../services/auth.ts";
+import { AuthError, issueAccessToken, validateAndNormalizeAddress, verifyAccessToken, verifySignedRequest } from "../services/auth.ts";
 
 export const checkAccessRouter = new Router();
 
@@ -57,15 +57,10 @@ checkAccessRouter.post("/api/check-access", async (ctx) => {
       return;
     }
 
-    // Validate address format
-    if (typeof resolvedAddress !== "string" || !/^0x[a-fA-F0-9]{40}$/.test(resolvedAddress)) {
-      ctx.response.status = 400;
-      ctx.response.body = { error: "Invalid Ethereum address format" };
-      return;
-    }
-
-    // Normalize address to lowercase for consistency
-    resolvedAddress = resolvedAddress.toLowerCase() as `0x${string}`;
+    // Validate address format and checksum using EIP-55
+    const checksummedAddress = validateAndNormalizeAddress(resolvedAddress);
+    // Use lowercase for internal consistency while keeping checksum validation
+    resolvedAddress = checksummedAddress.toLowerCase() as `0x${string}`;
 
     if (!token && signature) {
       await verifySignedRequest({ address: resolvedAddress, signature, nonce, issuedAt });

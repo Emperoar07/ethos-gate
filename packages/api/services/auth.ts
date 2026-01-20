@@ -1,5 +1,5 @@
 import { create, getNumericDate, verify } from "djwt";
-import { verifyMessage } from "npm:ethers@6.12.1";
+import { getAddress, verifyMessage } from "npm:ethers@6.12.1";
 import { isNonceUsed, markNonceUsed } from "./nonceStore.ts";
 
 const JWT_TTL_SECONDS = 5 * 60;
@@ -87,4 +87,29 @@ export async function issueAccessToken(payload: Record<string, unknown>): Promis
 export async function verifyAccessToken(token: string): Promise<Record<string, unknown>> {
   const payload = await verify(token, key);
   return payload as Record<string, unknown>;
+}
+
+/**
+ * Validates and normalizes an Ethereum address using EIP-55 checksum
+ * @param address - The address to validate
+ * @returns The checksummed address
+ * @throws AuthError if the address is invalid
+ */
+export function validateAndNormalizeAddress(address: string): string {
+  if (!address || typeof address !== "string") {
+    throw new AuthError(400, "Address is required");
+  }
+
+  // Basic format check
+  if (!/^0x[a-fA-F0-9]{40}$/.test(address)) {
+    throw new AuthError(400, "Invalid Ethereum address format");
+  }
+
+  try {
+    // getAddress validates checksum and returns checksummed address
+    // If checksum is invalid but address is otherwise valid, it still returns checksummed version
+    return getAddress(address);
+  } catch {
+    throw new AuthError(400, "Invalid Ethereum address");
+  }
 }
