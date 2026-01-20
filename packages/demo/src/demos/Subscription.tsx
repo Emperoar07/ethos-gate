@@ -78,10 +78,10 @@ export function SubscriptionDemo() {
           {Object.entries(pricing).map(([tierName, info]) => (
             <div
               key={tierName}
-              className={`text-center p-3 rounded-xl transition-all ${
+              className={`text-center p-3 transition-all ${
                 tier.name === tierName
-                  ? "bg-white/60 border-2 border-white/70 scale-105 shadow-sm"
-                  : "glass-pill border border-white/40"
+                  ? "glass-card border-2 border-white/70 scale-105 shadow-sm"
+                  : "glass-card border border-white/40"
               }`}
             >
               <div className="text-xs font-medium mb-1 text-gray-600">{tierName}</div>
