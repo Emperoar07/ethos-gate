@@ -53,7 +53,7 @@ export function MicrotasksDemo() {
           <div className="flex-1">
             <h4 className="font-semibold text-yellow-900 mb-2">Quality Control</h4>
             <p className="text-sm text-yellow-800 mb-2">
-              Only EMERGING tier users (1000+ score) can post tasks. This ensures:
+              Only TRUSTED tier users (1250+ score) can post tasks. This ensures:
             </p>
             <ul className="text-sm text-yellow-800 space-y-1">
               <li className="flex items-center gap-2">
@@ -212,12 +212,12 @@ export function MicrotasksDemo() {
               <h3 className="font-semibold mb-3">Requirements</h3>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
-                  <span className={score >= 1000 ? "text-green-500" : "text-red-500"}>
-                    {score >= 1000 ? "OK" : "NO"}
+                  <span className={score >= 1250 ? "text-green-500" : "text-red-500"}>
+                    {score >= 1250 ? "OK" : "NO"}
                   </span>
                   <span>
-                    EMERGING tier (1000+ score)
-                    {score < 1000 && score > 0 && <span className="text-gray-500"> - You have {score}</span>}
+                    TRUSTED tier (1250+ score)
+                    {score < 1250 && score > 0 && <span className="text-gray-500"> - You have {score}</span>}
                   </span>
                 </li>
                 <li className="flex items-center gap-2">
@@ -233,7 +233,7 @@ export function MicrotasksDemo() {
               </ul>
             </div>
 
-            <TrustGate minScore={1000} userScore={score}>
+            <TrustGate minScore={1250} userScore={score}>
               <PayButton
                 amount={5}
                 amounts={{ USDC: 5, ETH: ethAmount }}

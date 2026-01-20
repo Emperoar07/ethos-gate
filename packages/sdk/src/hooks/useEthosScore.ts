@@ -7,34 +7,85 @@ export interface EthosData {
   tier: string;
   loading: boolean;
   error: string | null;
+  isRegistered: boolean; // true if wallet has an Ethos profile
 }
 
 const API_URL = import.meta.env?.VITE_API_URL || "http://localhost:8000";
 const ETHOS_API_BASE = "https://api.ethos.network/api/v2";
+const REQUEST_TIMEOUT_MS = 10000; // 10 second timeout
 
-// Global cache for score data - shared across all hook instances
-const scoreCache = new Map<string, EthosData>();
+// Fetch with timeout using AbortController
+async function fetchWithTimeout(
+  url: string,
+  options: RequestInit = {},
+  timeoutMs: number = REQUEST_TIMEOUT_MS
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(url, {
+      ...options,
+      signal: controller.signal
+    });
+    return response;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+// LRU Cache for score data - shared across all hook instances
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+const CACHE_MAX_SIZE = 500; // Max entries in cache
+
+interface CacheEntry {
+  data: EthosData;
+  timestamp: number;
+}
+
+const scoreCache = new Map<string, CacheEntry>();
 
 // Global map for in-flight requests - prevents duplicate fetches
 const inflightRequests = new Map<string, Promise<EthosData>>();
 
-// Cache TTL: 5 minutes
-const CACHE_TTL = 5 * 60 * 1000;
-const cacheTimestamps = new Map<string, number>();
-
 function getCachedScore(address: string): EthosData | null {
-  const cached = scoreCache.get(address.toLowerCase());
-  const timestamp = cacheTimestamps.get(address.toLowerCase());
+  const key = address.toLowerCase();
+  const entry = scoreCache.get(key);
 
-  if (cached && timestamp && Date.now() - timestamp < CACHE_TTL) {
-    return cached;
+  if (!entry) return null;
+
+  // Check if expired
+  if (Date.now() - entry.timestamp > CACHE_TTL) {
+    scoreCache.delete(key);
+    return null;
   }
-  return null;
+
+  // Move to end (most recently used) - LRU behavior
+  scoreCache.delete(key);
+  scoreCache.set(key, entry);
+
+  return entry.data;
 }
 
 function setCachedScore(address: string, data: EthosData): void {
-  scoreCache.set(address.toLowerCase(), data);
-  cacheTimestamps.set(address.toLowerCase(), Date.now());
+  const key = address.toLowerCase();
+
+  // Delete existing entry to update position
+  if (scoreCache.has(key)) {
+    scoreCache.delete(key);
+  }
+
+  // Evict oldest entries if at capacity
+  while (scoreCache.size >= CACHE_MAX_SIZE) {
+    const oldestKey = scoreCache.keys().next().value;
+    if (oldestKey !== undefined) {
+      scoreCache.delete(oldestKey);
+    } else {
+      break;
+    }
+  }
+
+  scoreCache.set(key, { data, timestamp: Date.now() });
 }
 
 function getTierFromScore(score: number): string {
@@ -47,69 +98,103 @@ function getTierFromScore(score: number): string {
 
 // Fetch directly from Ethos API (fallback when local API unavailable)
 async function fetchScoreFromEthosAPI(address: string): Promise<EthosData> {
-  let lastError: Error | null = null;
+  const apiUrl = `${ETHOS_API_BASE}/score/address?address=${address}`;
+  console.log("[EthosGate] Fetching score from Ethos API:", apiUrl);
 
   try {
-    const scoreResponse = await fetch(`${ETHOS_API_BASE}/score/address?address=${address}`, {
+    const scoreResponse = await fetchWithTimeout(apiUrl, {
       headers: {
         "Accept": "application/json",
         "X-Ethos-Client": "ethos-reputation-gate"
       }
     });
 
-    if (scoreResponse.ok) {
-      const result = await scoreResponse.json();
-      const score = result.score ?? 0;
+    const responseText = await scoreResponse.text();
+    console.log("[EthosGate] API Response status:", scoreResponse.status, "body:", responseText);
 
+    // 404 means wallet is not registered with Ethos
+    if (scoreResponse.status === 404) {
+      console.log("[EthosGate] Wallet not registered with Ethos");
       return {
-        score,
+        score: 0,
         vouches: 0,
         reviews: 0,
-        tier: getTierFromScore(score),
+        tier: "UNREGISTERED",
         loading: false,
-        error: null
+        error: null,
+        isRegistered: false
       };
     }
-  } catch (err) {
-    lastError = err instanceof Error ? err : new Error("Unknown error");
-  }
 
-  // If all endpoints fail, return default with error
-  if (lastError) {
-    console.warn("[EthosGate] Failed to fetch score from Ethos API:", lastError.message);
+    if (scoreResponse.ok) {
+      try {
+        const result = JSON.parse(responseText);
+        const score = result.score ?? 0;
+
+        console.log("[EthosGate] Parsed score:", score, "full result:", result);
+
+        // Check if user actually has a profile (score > 0 or explicit registration)
+        const isRegistered = score > 0 || result.level !== undefined;
+
+        return {
+          score,
+          vouches: 0,
+          reviews: 0,
+          tier: isRegistered ? getTierFromScore(score) : "UNREGISTERED",
+          loading: false,
+          error: null,
+          isRegistered
+        };
+      } catch (parseErr) {
+        console.error("[EthosGate] Failed to parse API response:", parseErr);
+      }
+    } else {
+      console.warn("[EthosGate] API returned error status:", scoreResponse.status);
+    }
+  } catch (err) {
+    const isTimeout = err instanceof Error && err.name === "AbortError";
+    console.error("[EthosGate] Failed to fetch score from Ethos API:", isTimeout ? "Request timed out" : err);
   }
 
   return {
     score: 0,
     vouches: 0,
     reviews: 0,
-    tier: "NEW",
+    tier: "UNREGISTERED",
     loading: false,
-    error: lastError?.message || "Could not fetch score"
+    error: "Could not fetch score from Ethos API",
+    isRegistered: false
   };
 }
 
 // Try local API first, fall back to direct Ethos API
 async function fetchScoreFromAPI(address: string): Promise<EthosData> {
-  // Try local API first
+  // Try local API first (shorter timeout for local)
   try {
-    const response = await fetch(`${API_URL}/api/check-access`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ address })
-    });
+    const response = await fetchWithTimeout(
+      `${API_URL}/api/check-access`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address })
+      },
+      5000 // 5 second timeout for local API
+    );
 
     if (response.ok) {
       const result = await response.json();
+      const isRegistered = result.isRegistered ?? (result.score > 0 || result.vouches > 0);
       const data: EthosData = {
         score: result.score || 0,
         vouches: result.vouches || 0,
         reviews: result.reviews || 0,
-        tier: result.tier || "NEW",
+        tier: isRegistered ? (result.tier || getTierFromScore(result.score || 0)) : "UNREGISTERED",
         loading: false,
-        error: null
+        error: null,
+        isRegistered
       };
-      if (data.score === 0 && data.vouches === 0 && data.reviews === 0) {
+      // If local API returns no data, try Ethos API directly
+      if (!isRegistered && data.score === 0) {
         return fetchScoreFromEthosAPI(address);
       }
       return data;
@@ -135,9 +220,10 @@ export function useEthosScore(address?: string): EthosData {
       score: 0,
       vouches: 0,
       reviews: 0,
-      tier: "NEW",
+      tier: "UNREGISTERED",
       loading: !!address,
-      error: address ? null : "No address provided"
+      error: address ? null : "No address provided",
+      isRegistered: false
     };
   });
 
@@ -180,9 +266,10 @@ export function useEthosScore(address?: string): EthosData {
         score: 0,
         vouches: 0,
         reviews: 0,
-        tier: "NEW",
+        tier: "UNREGISTERED",
         loading: false,
-        error: err instanceof Error ? err.message : "Unknown error"
+        error: err instanceof Error ? err.message : "Unknown error",
+        isRegistered: false
       };
       setData(errorData);
     } finally {
@@ -197,9 +284,10 @@ export function useEthosScore(address?: string): EthosData {
         score: 0,
         vouches: 0,
         reviews: 0,
-        tier: "NEW",
+        tier: "UNREGISTERED",
         loading: false,
-        error: "No address provided"
+        error: "No address provided",
+        isRegistered: false
       });
       return;
     }

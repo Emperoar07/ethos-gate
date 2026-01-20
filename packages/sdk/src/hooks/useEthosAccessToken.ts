@@ -5,6 +5,25 @@ import { useEthosConfig } from "../components/EthosProvider";
 
 const SIGN_MESSAGE_PREFIX = "EthosGate Score Check\nAddress: ";
 
+// Cryptographically secure nonce generation
+function generateSecureNonce(): string {
+  // Try crypto.randomUUID first (most secure)
+  if (typeof globalThis.crypto?.randomUUID === "function") {
+    return globalThis.crypto.randomUUID();
+  }
+  // Fallback to crypto.getRandomValues (also secure)
+  if (typeof globalThis.crypto?.getRandomValues === "function") {
+    const array = new Uint8Array(16);
+    globalThis.crypto.getRandomValues(array);
+    return Array.from(array, (b) => b.toString(16).padStart(2, "0")).join("");
+  }
+  // Last resort: timestamp + high-resolution time (NOT cryptographically secure)
+  console.warn("[EthosGate] No secure random source available, using fallback");
+  const timestamp = Date.now().toString(36);
+  const random = (typeof performance !== "undefined" ? performance.now() : Math.random()).toString(36);
+  return `${timestamp}-${random}`;
+}
+
 export interface AccessTokenData {
   token: string | null;
   score: number;
@@ -54,7 +73,7 @@ export function useEthosAccessToken(address?: string): AccessTokenData {
         let currentIssuedAt = issuedAt;
 
         if (!currentNonce) {
-          currentNonce = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
+          currentNonce = generateSecureNonce();
           setNonce(currentNonce);
         }
 

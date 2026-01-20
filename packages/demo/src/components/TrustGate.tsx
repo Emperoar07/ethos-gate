@@ -11,14 +11,14 @@ interface TrustGateProps {
 
 const TrustGate = ({ minScore, userScore: externalScore, children }: TrustGateProps) => {
   const { address, isConnected } = useAccount();
-  const { score: fetchedScore, loading } = useEthosScore(address);
+  const { score: fetchedScore, loading, isRegistered } = useEthosScore(address);
   const [animatedScore, setAnimatedScore] = useState(0);
 
   // Use external score if provided, otherwise use fetched score
   const userScore = externalScore ?? fetchedScore;
-  const isLocked = !isConnected || userScore < minScore;
+  const isLocked = !isConnected || !isRegistered || userScore < minScore;
   const tier = getTrustTier(userScore);
-  const progress = Math.min((userScore / minScore) * 100, 100);
+  const progress = isRegistered ? Math.min((userScore / minScore) * 100, 100) : 0;
 
   // Animate score counting
   useEffect(() => {
@@ -46,7 +46,7 @@ const TrustGate = ({ minScore, userScore: externalScore, children }: TrustGatePr
   }, [userScore]);
 
   // Unlocked state - show children with success indicator
-  if (isConnected && !isLocked) {
+  if (isConnected && isRegistered && !isLocked) {
     return (
       <div className="relative">
         {/* Success glow */}
@@ -142,6 +142,10 @@ const TrustGate = ({ minScore, userScore: externalScore, children }: TrustGatePr
               <div className="flex items-center gap-2">
                 {loading ? (
                   <span className="text-slate-400 text-sm">Loading...</span>
+                ) : !isConnected ? (
+                  <span className="text-slate-400 text-sm">Connect Wallet</span>
+                ) : !isRegistered ? (
+                  <span className="text-amber-500 text-sm font-semibold">Not Registered</span>
                 ) : (
                   <>
                     <span className={`text-lg font-bold ${userScore >= minScore ? "text-emerald-500" : "text-rose-500"}`}>
@@ -170,10 +174,16 @@ const TrustGate = ({ minScore, userScore: externalScore, children }: TrustGatePr
             </div>
 
             {/* Tier indicator */}
-            {isConnected && userScore > 0 && (
+            {isConnected && isRegistered && userScore > 0 && (
               <div className="mt-3 flex items-center justify-center gap-2">
                 <span className="text-lg">{tier.emoji}</span>
                 <span className="text-sm font-medium text-slate-600">{tier.name} Tier</span>
+              </div>
+            )}
+            {isConnected && !isRegistered && (
+              <div className="mt-3 flex items-center justify-center gap-2">
+                <span className="text-lg">{"\u26A0\uFE0F"}</span>
+                <span className="text-sm font-medium text-amber-600">No Ethos Profile Found</span>
               </div>
             )}
           </div>
@@ -204,6 +214,31 @@ const TrustGate = ({ minScore, userScore: externalScore, children }: TrustGatePr
                   </button>
                 )}
               </ConnectButton.Custom>
+            </div>
+          ) : !isRegistered ? (
+            <div className="w-full">
+              <a
+                href="https://ethos.network"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full py-4 px-6 rounded-xl font-semibold text-white text-center transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                style={{
+                  background: "linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)",
+                  boxShadow: "0 8px 24px rgba(139,92,246,0.35), inset 0 1px 0 rgba(255,255,255,0.2)",
+                }}
+              >
+                <span className="flex items-center justify-center gap-2">
+                  {"\u2728"} Create Ethos Profile
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-60">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                    <polyline points="15 3 21 3 21 9" />
+                    <line x1="10" y1="14" x2="21" y2="3" />
+                  </svg>
+                </span>
+              </a>
+              <p className="text-xs text-slate-400 text-center mt-3">
+                Register on Ethos Network to build your reputation
+              </p>
             </div>
           ) : userScore < minScore ? (
             <div className="w-full">

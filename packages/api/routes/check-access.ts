@@ -81,14 +81,17 @@ checkAccessRouter.post("/api/check-access", async (ctx) => {
 
     const [score, profile] = await Promise.all([getEthosScore(resolvedAddress), getEthosProfile(resolvedAddress)]);
 
-    const tier = getTier(score);
-    const hasAccess = score >= minScore;
+    // Check if wallet is registered with Ethos (has a profile or non-zero score)
+    const isRegistered = profile !== null || score > 0;
+    const tier = isRegistered ? getTier(score) : "UNREGISTERED";
+    const hasAccess = isRegistered && score >= minScore;
 
     const response: Record<string, unknown> = {
       address: resolvedAddress,
       score,
       tier,
       hasAccess,
+      isRegistered,
       vouches: profile?.vouchCount || 0,
       reviews: profile?.reviewCount || 0,
       positiveReviews: profile?.positiveReviewCount || 0,
