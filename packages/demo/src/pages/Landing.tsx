@@ -112,8 +112,8 @@ export function Landing() {
           </div>
 
           <div className="max-w-3xl mx-auto">
-            <div className="glass-card rounded-2xl p-6 mb-8">
-              <pre className="text-green-400 font-mono text-sm overflow-x-auto">{`npm install @ethos/reputation-gate
+            <div className="glass-card rounded-2xl p-6 mb-8 bg-[#0b1f16] border border-[#1f3b2b] shadow-[0_18px_50px_rgba(11,31,22,0.35)]">
+              <pre className="text-green-300 font-mono text-sm overflow-x-auto">{`npm install @ethos/reputation-gate
 
 import { EthosGate, PayButton } from '@ethos/reputation-gate'
 
