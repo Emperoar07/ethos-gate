@@ -211,28 +211,28 @@ const requiredScore = calculateRequiredScore({
         <Section title="Trust Tiers">
           <div className="space-y-3">
             <TierCard
-              emoji="\uD83C\uDF1F"
+              emoji="🌟"
               name="ELITE"
               range="1600+"
               color="bg-yellow-50 border-yellow-500"
               description="Top 5% of Ethos users - Proven track record and high trust"
             />
             <TierCard
-              emoji="\u2705"
+              emoji="✅"
               name="TRUSTED"
               range="1200-1599"
               color="bg-blue-50 border-blue-500"
               description="Established community member with solid reputation"
             />
             <TierCard
-              emoji="\uD83C\uDF31"
+              emoji="🌱"
               name="EMERGING"
               range="700-1199"
               color="bg-green-50 border-green-500"
               description="Growing reputation - Actively building trust"
             />
             <TierCard
-              emoji="\u26A0\uFE0F"
+              emoji="⚠️"
               name="NEW"
               range="0-699"
               color="bg-gray-50 border-gray-400"
@@ -376,20 +376,20 @@ const requiredScore = calculateRequiredScore({
         <Section title="Support & Resources">
           <div className="grid md:grid-cols-2 gap-4">
             <ResourceCard
-              icon="\uD83D\uDCDA"
+              icon="📚"
               title="Ethos API Docs"
               description="Full API documentation"
               link="https://developers.ethos.network"
             />
             <ResourceCard
-              icon="\uD83D\uDCBB"
+              icon="💻"
               title="GitHub Repository"
               description="View source code and examples"
               link="https://github.com/ethos/reputation-gate"
             />
-            <ResourceCard icon="\uD83C\uDFAE" title="Live Demos" description="Interactive demo applications" link="/demos" />
+            <ResourceCard icon="🎮" title="Live Demos" description="Interactive demo applications" link="/demos" />
             <ResourceCard
-              icon="\uD83D\uDD10"
+              icon="🔐"
               title="Ethos Network"
               description="Build your reputation ->"
               link="https://ethos.network"

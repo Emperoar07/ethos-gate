@@ -99,7 +99,9 @@ export function Demos() {
           </div>
         )}
 
-        <div className="mb-8">
+        <div className="mb-8 relative">
+          <div className="pointer-events-none absolute -inset-3 rounded-[32px] border border-blue-500/80 shadow-[0_18px_40px_rgba(37,99,235,0.25)]" />
+          <div className="pointer-events-none absolute -inset-6 rounded-[40px] bg-blue-500/20 blur-2xl opacity-80" />
           <ActiveComponent />
         </div>
 
@@ -124,7 +126,7 @@ export function Demos() {
               <span className="emoji">{"\uD83D\uDCDA"}</span> API Docs
             </a>
             <a
-              href="https://github.com/ethos/reputation-gate"
+              href="https://github.com/Emperoar07/ethos-gate"
               target="_blank"
               rel="noopener noreferrer"
               className="text-slate-700 hover:text-slate-900 font-medium"

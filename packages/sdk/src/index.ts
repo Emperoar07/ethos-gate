@@ -4,6 +4,13 @@ export { TrustBadge } from "./components/TrustBadge";
 export { AccessDenied } from "./components/AccessDenied";
 export { EthosProvider, useEthosConfig } from "./components/EthosProvider";
 
+// Animated & Interactive Components
+export { VerificationFlow } from "./components/VerificationFlow";
+export { ScoreComparison } from "./components/ScoreComparison";
+export { PaymentProgress } from "./components/PaymentProgress";
+export { DiscountCalculator } from "./components/DiscountCalculator";
+export { ActivityFeed } from "./components/ActivityFeed";
+
 export { useEthosScore } from "./hooks/useEthosScore";
 export { useEthosAccessToken } from "./hooks/useEthosAccessToken";
 export { usePayment } from "./hooks/usePayment";

@@ -69,10 +69,10 @@ export function StakeToApplyDemo() {
         <h3 className="font-semibold mb-3">Requirements to Apply</h3>
         <ul className="space-y-2 text-sm mb-6">
           <li className="flex items-center gap-2">
-            <span className={score >= 1200 ? "text-green-500" : "text-red-500"}>
-              {score >= 1200 ? "OK" : "NO"}
+            <span className={score >= 800 ? "text-green-500" : "text-red-500"}>
+              {score >= 800 ? "OK" : "NO"}
             </span>
-            <span>Min score: 1200 (TRUSTED tier)</span>
+            <span>Min score: 800 (EMERGING tier)</span>
           </li>
           <li className="flex items-center gap-2">
             <span className="text-blue-500">REQ</span>
@@ -105,7 +105,7 @@ export function StakeToApplyDemo() {
             </div>
           </div>
         ) : (
-          <TrustGate minScore={1200} userScore={score}>
+          <TrustGate minScore={800} userScore={score}>
             <PayButton
               amount={10}
               amounts={{ USDC: 10, ETH: ethAmount }}

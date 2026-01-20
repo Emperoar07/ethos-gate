@@ -1,88 +1,246 @@
-import React, { useState } from "react";
-import { Shield, Lock, CheckCircle2, Wallet, ChevronRight } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { useAccount } from "wagmi";
+import { useEthosScore, getTrustTier } from "@ethos/reputation-gate";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 interface TrustGateProps {
   minScore: number;
-  userScore: number;
+  userScore?: number; // Optional - will fetch if not provided
   children: React.ReactNode;
 }
 
-const TrustGate = ({ minScore, userScore, children }: TrustGateProps) => {
-  const isLocked = userScore < minScore;
-  const [isHovered, setIsHovered] = useState(false);
+const TrustGate = ({ minScore, userScore: externalScore, children }: TrustGateProps) => {
+  const { address, isConnected } = useAccount();
+  const { score: fetchedScore, loading } = useEthosScore(address);
+  const [animatedScore, setAnimatedScore] = useState(0);
 
-  if (!isLocked) {
+  // Use external score if provided, otherwise use fetched score
+  const userScore = externalScore ?? fetchedScore;
+  const isLocked = !isConnected || userScore < minScore;
+  const tier = getTrustTier(userScore);
+  const progress = Math.min((userScore / minScore) * 100, 100);
+
+  // Animate score counting
+  useEffect(() => {
+    if (userScore === 0) {
+      setAnimatedScore(0);
+      return;
+    }
+
+    const duration = 1000;
+    const steps = 30;
+    const increment = userScore / steps;
+    let current = 0;
+
+    const timer = setInterval(() => {
+      current += increment;
+      if (current >= userScore) {
+        setAnimatedScore(userScore);
+        clearInterval(timer);
+      } else {
+        setAnimatedScore(Math.floor(current));
+      }
+    }, duration / steps);
+
+    return () => clearInterval(timer);
+  }, [userScore]);
+
+  // Unlocked state - show children with success indicator
+  if (isConnected && !isLocked) {
     return (
-      <div className="relative group">
-        <div className="absolute -inset-0.5 bg-gradient-to-r from-emerald-500 to-cyan-500 rounded-2xl blur opacity-20 group-hover:opacity-40 transition duration-500" />
-        <div className="relative glass-panel rounded-2xl p-1 overflow-hidden">
-          <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500/10 border-b border-emerald-500/20 mb-4">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-            <span className="text-xs font-medium text-emerald-200 tracking-wider">REPUTATION VERIFIED</span>
+      <div className="relative">
+        {/* Success glow */}
+        <div className="absolute -inset-1 bg-gradient-to-r from-emerald-400/20 to-cyan-400/20 rounded-2xl blur-lg" />
+
+        <div className="relative rounded-2xl overflow-hidden" style={{
+          background: "linear-gradient(145deg, rgba(236,253,245,0.95) 0%, rgba(209,250,229,0.85) 100%)",
+          backdropFilter: "blur(20px)",
+          border: "1px solid rgba(134,239,172,0.4)",
+          boxShadow: "0 8px 32px rgba(34,197,94,0.15), inset 0 1px 0 rgba(255,255,255,0.8)",
+        }}>
+          {/* Verified banner */}
+          <div className="flex items-center gap-2 px-4 py-3 border-b border-emerald-200/50" style={{
+            background: "linear-gradient(90deg, rgba(187,247,208,0.5) 0%, rgba(167,243,208,0.3) 100%)",
+          }}>
+            <span className="text-lg">{"\u2705"}</span>
+            <span className="text-sm font-semibold text-emerald-700 tracking-wide">REPUTATION VERIFIED</span>
+            <span className="ml-auto text-sm font-bold text-emerald-600">{tier.emoji} {animatedScore}</span>
           </div>
-          {children}
+
+          {/* Content */}
+          <div className="p-1">
+            {children}
+          </div>
         </div>
       </div>
     );
   }
 
+  // Locked state - show gate UI
   return (
-    <div
-      className="relative w-full max-w-md mx-auto overflow-hidden rounded-3xl"
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-    >
-      <div className="absolute inset-0 bg-slate-950">
-        <div className="liquid-blob bg-emerald-600 w-64 h-64 rounded-full top-[-20%] left-[-20%] mix-blend-screen animate-delay-0" />
-        <div className="liquid-blob bg-cyan-600 w-72 h-72 rounded-full bottom-[-20%] right-[-20%] mix-blend-screen animation-delay-2000" />
-        <div className="liquid-blob bg-purple-600 w-48 h-48 rounded-full top-[40%] left-[30%] mix-blend-screen animation-delay-4000 opacity-40" />
+    <div className="relative w-full max-w-md mx-auto">
+      {/* Ambient glow effects */}
+      <div className="absolute -inset-4 opacity-60 pointer-events-none">
+        <div className="absolute top-0 left-1/4 w-32 h-32 bg-blue-300 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-0 right-1/4 w-40 h-40 bg-purple-300 rounded-full blur-3xl animate-pulse" style={{ animationDelay: "1s" }} />
       </div>
 
-      <div className="absolute inset-0 opacity-[0.03] bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+      <div className="relative rounded-3xl overflow-hidden" style={{
+        background: "linear-gradient(145deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.85) 100%)",
+        backdropFilter: "blur(24px) saturate(180%)",
+        border: "1px solid rgba(255,255,255,0.6)",
+        boxShadow: "0 20px 60px rgba(100,116,139,0.15), inset 0 1px 0 rgba(255,255,255,0.9)",
+      }}>
+        {/* Header accent */}
+        <div style={{
+          height: "4px",
+          background: "linear-gradient(90deg, #3b82f6 0%, #8b5cf6 50%, #06b6d4 100%)",
+        }} />
 
-      <div className="relative z-10 p-8 flex flex-col items-center text-center h-full glass-panel min-h-[400px] justify-center transition-all duration-500">
-        <div className={`relative mb-6 transition-transform duration-500 ${isHovered ? "scale-110" : "scale-100"}`}>
-          <div className="absolute inset-0 bg-emerald-400 blur-xl opacity-20 rounded-full" />
-          <div className="relative bg-slate-900/50 p-4 rounded-full border border-white/10 ring-1 ring-white/5 shadow-2xl">
-            <Shield
-              className={`w-12 h-12 ${isHovered ? "text-emerald-400" : "text-slate-400"} transition-colors duration-300`}
-            />
+        <div className="p-8 flex flex-col items-center text-center">
+          {/* Shield icon */}
+          <div className="relative mb-6">
+            <div className="absolute inset-0 bg-blue-400/20 blur-xl rounded-full" />
+            <div className="relative p-5 rounded-full" style={{
+              background: "linear-gradient(145deg, rgba(239,246,255,0.95) 0%, rgba(219,234,254,0.8) 100%)",
+              border: "1px solid rgba(147,197,253,0.4)",
+              boxShadow: "0 8px 24px rgba(59,130,246,0.15), inset 0 1px 0 rgba(255,255,255,0.9)",
+            }}>
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-blue-500">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
+
+              {/* Lock indicator */}
+              <div className="absolute -bottom-1 -right-1 p-1.5 rounded-full" style={{
+                background: "linear-gradient(145deg, rgba(254,242,242,0.95) 0%, rgba(254,226,226,0.8) 100%)",
+                border: "1px solid rgba(252,165,165,0.4)",
+                boxShadow: "0 4px 12px rgba(239,68,68,0.15)",
+              }}>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" className="text-rose-500">
+                  <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z" />
+                </svg>
+              </div>
+            </div>
           </div>
-          <div className="absolute -bottom-1 -right-1 bg-slate-900 border border-slate-700 p-1.5 rounded-full shadow-lg">
-            <Lock className="w-4 h-4 text-rose-500" />
+
+          {/* Title */}
+          <h2 className="text-2xl font-bold text-slate-800 mb-2 tracking-tight">
+            Trust Gate <span className="text-blue-500">Active</span>
+          </h2>
+          <p className="text-slate-500 text-sm mb-6 leading-relaxed max-w-[300px]">
+            This action is protected by Ethos Reputation. Connect your wallet to verify your credibility score.
+          </p>
+
+          {/* Score display */}
+          <div className="w-full mb-6 p-4 rounded-2xl" style={{
+            background: "linear-gradient(145deg, rgba(248,250,252,0.9) 0%, rgba(241,245,249,0.7) 100%)",
+            border: "1px solid rgba(226,232,240,0.6)",
+            boxShadow: "inset 0 2px 4px rgba(0,0,0,0.02)",
+          }}>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-semibold text-slate-400 tracking-wider">YOUR SCORE</span>
+              <div className="flex items-center gap-2">
+                {loading ? (
+                  <span className="text-slate-400 text-sm">Loading...</span>
+                ) : (
+                  <>
+                    <span className={`text-lg font-bold ${userScore >= minScore ? "text-emerald-500" : "text-rose-500"}`}>
+                      {animatedScore}
+                    </span>
+                    <span className="text-slate-300">/</span>
+                    <span className="text-lg font-bold text-emerald-500">{minScore}</span>
+                  </>
+                )}
+              </div>
+            </div>
+
+            {/* Progress bar */}
+            <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all duration-1000 ease-out"
+                style={{
+                  width: `${progress}%`,
+                  background: progress >= 100
+                    ? "linear-gradient(90deg, #10b981 0%, #34d399 100%)"
+                    : progress >= 50
+                    ? "linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%)"
+                    : "linear-gradient(90deg, #ef4444 0%, #f87171 100%)",
+                }}
+              />
+            </div>
+
+            {/* Tier indicator */}
+            {isConnected && userScore > 0 && (
+              <div className="mt-3 flex items-center justify-center gap-2">
+                <span className="text-lg">{tier.emoji}</span>
+                <span className="text-sm font-medium text-slate-600">{tier.name} Tier</span>
+              </div>
+            )}
           </div>
+
+          {/* Connect button */}
+          {!isConnected ? (
+            <div className="w-full">
+              <ConnectButton.Custom>
+                {({ openConnectModal }) => (
+                  <button
+                    onClick={openConnectModal}
+                    className="w-full py-4 px-6 rounded-xl font-semibold text-white transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                    style={{
+                      background: "linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)",
+                      boxShadow: "0 8px 24px rgba(59,130,246,0.35), inset 0 1px 0 rgba(255,255,255,0.2)",
+                    }}
+                  >
+                    <span className="flex items-center justify-center gap-2">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                        <circle cx="12" cy="7" r="4" />
+                      </svg>
+                      Connect Wallet to Verify
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-60">
+                        <polyline points="9 18 15 12 9 6" />
+                      </svg>
+                    </span>
+                  </button>
+                )}
+              </ConnectButton.Custom>
+            </div>
+          ) : userScore < minScore ? (
+            <div className="w-full">
+              <a
+                href="https://ethos.network"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full py-4 px-6 rounded-xl font-semibold text-white text-center transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+                style={{
+                  background: "linear-gradient(135deg, #f59e0b 0%, #f97316 100%)",
+                  boxShadow: "0 8px 24px rgba(245,158,11,0.35), inset 0 1px 0 rgba(255,255,255,0.2)",
+                }}
+              >
+                <span className="flex items-center justify-center gap-2">
+                  {"\uD83D\uDCC8"} Build Your Reputation
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-60">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                    <polyline points="15 3 21 3 21 9" />
+                    <line x1="10" y1="14" x2="21" y2="3" />
+                  </svg>
+                </span>
+              </a>
+              <p className="text-xs text-slate-400 text-center mt-3">
+                You need {minScore - userScore} more points to unlock
+              </p>
+            </div>
+          ) : null}
         </div>
 
-        <h2 className="text-2xl font-bold text-white mb-2 tracking-tight">
-          Trust Gate <span className="text-emerald-400">Active</span>
-        </h2>
-        <p className="text-slate-400 text-sm mb-8 leading-relaxed max-w-[280px]">
-          This action is protected by the Ethos Reputation Layer. You need a higher credibility score to proceed.
-        </p>
-
-        <div className="w-full bg-slate-800/50 h-12 rounded-xl border border-white/5 flex items-center justify-between px-4 mb-8 relative overflow-hidden group">
-          <span className="text-xs text-slate-400 font-mono">YOUR SCORE</span>
-          <div className="flex items-center gap-3">
-            <span className="text-rose-400 font-bold font-mono">{userScore}</span>
-            <span className="text-slate-600 text-xs">/</span>
-            <span className="text-emerald-400 font-bold font-mono">{minScore}</span>
-          </div>
-          <div className="absolute bottom-0 left-0 h-1 bg-slate-700 w-full">
-            <div
-              className="h-full bg-gradient-to-r from-rose-500 to-rose-400"
-              style={{ width: `${Math.min((userScore / minScore) * 100, 100)}%` }}
-            />
-          </div>
+        {/* Footer */}
+        <div className="px-6 py-3 text-center border-t border-slate-100" style={{
+          background: "linear-gradient(180deg, rgba(248,250,252,0.5) 0%, rgba(241,245,249,0.8) 100%)",
+        }}>
+          <p className="text-xs text-slate-400">
+            Powered by Ethos Network {"\u2022"} Base Sepolia Testnet
+          </p>
         </div>
-
-        <button className="group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 p-[1px] focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 focus:ring-offset-slate-900">
-          <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2E8F0_0%,#310000_50%,#E2E8F0_100%)] opacity-0 group-hover:opacity-30 transition-opacity" />
-          <span className="relative flex h-full w-full items-center justify-center rounded-xl bg-slate-950 px-8 py-3 text-sm font-medium text-white transition-all group-hover:bg-slate-900">
-            <Wallet className="mr-2 h-4 w-4" />
-            Connect Wallet to Verify
-            <ChevronRight className="ml-1 h-4 w-4 opacity-50 group-hover:translate-x-1 transition-transform" />
-          </span>
-        </button>
       </div>
     </div>
   );

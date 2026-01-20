@@ -51,7 +51,7 @@ export function EventAccessDemo() {
         <ul className="space-y-2 text-sm text-gray-600 mb-6">
           <li className="flex items-center gap-2">
             <span className="text-green-500">OK</span>
-            Minimum Ethos score: 1400 (TRUSTED tier)
+            Minimum Ethos score: 1000 (EMERGING tier)
           </li>
           <li className="flex items-center gap-2">
             <span className="text-green-500">OK</span>
@@ -72,7 +72,7 @@ export function EventAccessDemo() {
             </p>
           </div>
         ) : (
-          <TrustGate minScore={1400} userScore={score}>
+          <TrustGate minScore={1000} userScore={score}>
             <PayButton
               amount={25}
               amounts={{ USDC: 25, ETH: ethAmount }}

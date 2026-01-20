@@ -35,9 +35,7 @@ export function Landing() {
 
             {address && score > 0 ? (
               <div className="mb-8 flex justify-center">
-                <div className="glass-pill px-6 py-3">
-                  <TrustBadge score={score} showScore size="lg" />
-                </div>
+                <TrustBadge score={score} showScore size="lg" variant="card" />
               </div>
             ) : null}
 

@@ -12,28 +12,28 @@ export const TRUST_TIERS: TierInfo[] = [
   {
     name: "ELITE",
     minScore: 1600,
-    emoji: "🌟",
+    emoji: "\u2B50",
     color: "#FFD700",
     description: "Top 5% of Ethos users"
   },
   {
     name: "TRUSTED",
     minScore: 1200,
-    emoji: "✅",
+    emoji: "\u2705",
     color: "#3B82F6",
     description: "Established community member"
   },
   {
     name: "EMERGING",
     minScore: 700,
-    emoji: "🌱",
+    emoji: "\uD83C\uDF31",
     color: "#10B981",
     description: "Growing reputation"
   },
   {
     name: "NEW",
     minScore: 0,
-    emoji: "⚠️",
+    emoji: "\uD83D\uDC64",
     color: "#6B7280",
     description: "New to Ethos - build your reputation"
   }

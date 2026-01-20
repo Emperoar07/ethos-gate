@@ -61,7 +61,7 @@ export function DAOProposalDemo() {
             <ul className="text-sm text-yellow-800 space-y-1">
               <li className="flex items-center gap-2">
                 <span>REQ</span>
-                <span>Have ELITE tier reputation (1800+ score)</span>
+                <span>Have TRUSTED tier reputation (1200+ score)</span>
               </li>
               <li className="flex items-center gap-2">
                 <span>REQ</span>
@@ -204,12 +204,12 @@ export function DAOProposalDemo() {
               <h3 className="font-semibold mb-3">Requirements</h3>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
-                  <span className={score >= 1800 ? "text-green-500" : "text-red-500"}>
-                    {score >= 1800 ? "OK" : "NO"}
+                  <span className={score >= 1200 ? "text-green-500" : "text-red-500"}>
+                    {score >= 1200 ? "OK" : "NO"}
                   </span>
                   <span>
-                    ELITE tier (1800+ score)
-                    {score < 1800 && score > 0 && <span className="text-gray-500"> - You have {score}</span>}
+                    TRUSTED tier (1200+ score)
+                    {score < 1200 && score > 0 && <span className="text-gray-500"> - You have {score}</span>}
                   </span>
                 </li>
                 <li className="flex items-center gap-2">
@@ -225,7 +225,7 @@ export function DAOProposalDemo() {
               </ul>
             </div>
 
-            <TrustGate minScore={1800} userScore={score}>
+            <TrustGate minScore={1200} userScore={score}>
               <PayButton
                 amount={100}
                 amounts={{ USDC: 100, ETH: ethAmount }}
@@ -257,7 +257,7 @@ export function DAOProposalDemo() {
           <span>Why This Works:</span>
         </h4>
         <ul className="text-xs text-gray-600 space-y-1">
-          <li>- Only elite community members can propose</li>
+          <li>- Only trusted community members can propose</li>
           <li>- Financial stake ensures quality proposals</li>
           <li>- Failed proposals fund the treasury</li>
           <li>- Prevents governance attacks and spam</li>

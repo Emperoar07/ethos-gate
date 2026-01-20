@@ -32,7 +32,7 @@ export function Navbar() {
                 Docs
               </Link>
               <a
-                href="https://github.com/ethos/reputation-gate"
+                href="https://github.com/Emperoar07/ethos-gate"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="glass-pill px-4 py-2 text-sm font-semibold text-slate-800 hover:text-slate-950 transition-colors"
