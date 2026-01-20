@@ -100,9 +100,11 @@ export function Demos() {
         )}
 
         <div className="mb-8 relative">
-          <div className="pointer-events-none absolute -inset-3 rounded-[32px] border border-blue-500/80 shadow-[0_18px_40px_rgba(37,99,235,0.25)]" />
-          <div className="pointer-events-none absolute -inset-6 rounded-[40px] bg-blue-500/20 blur-2xl opacity-80" />
-          <ActiveComponent />
+          <div className="pointer-events-none absolute -inset-3 rounded-[32px] border-2 border-blue-500/80 shadow-[0_18px_40px_rgba(37,99,235,0.35)] z-0" />
+          <div className="pointer-events-none absolute -inset-6 rounded-[40px] bg-blue-500/25 blur-3xl opacity-90 z-0" />
+          <div className="relative z-10">
+            <ActiveComponent />
+          </div>
         </div>
 
         <div className="glass-card rounded-3xl p-6 sm:p-8">

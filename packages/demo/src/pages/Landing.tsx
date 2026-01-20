@@ -139,7 +139,7 @@ import { EthosGate, PayButton } from '@ethos/reputation-gate'
               <div className="text-slate-600">Trust Tiers</div>
             </div>
             <div className="glass-card rounded-2xl py-6">
-              <div className="text-4xl font-semibold text-slate-900 mb-2">7</div>
+              <div className="text-4xl font-semibold text-slate-900 mb-2">6</div>
               <div className="text-slate-600">Live Demos</div>
             </div>
             <div className="glass-card rounded-2xl py-6">
@@ -165,7 +165,7 @@ import { EthosGate, PayButton } from '@ethos/reputation-gate'
                 Explore Demos
               </Link>
               <a
-                href="https://github.com/ethos/reputation-gate"
+                href="https://github.com/Emperoar07/ethos-gate"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="glass-pill px-8 py-3 text-slate-900 font-semibold"
