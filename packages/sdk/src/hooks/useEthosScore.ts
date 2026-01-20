@@ -10,6 +10,7 @@ export interface EthosData {
 }
 
 const API_URL = import.meta.env?.VITE_API_URL || "http://localhost:8000";
+const ETHOS_API_BASE = "https://api.ethos.network/api/v2";
 
 // Global cache for score data - shared across all hook instances
 const scoreCache = new Map<string, EthosData>();
@@ -36,27 +37,89 @@ function setCachedScore(address: string, data: EthosData): void {
   cacheTimestamps.set(address.toLowerCase(), Date.now());
 }
 
-async function fetchScoreFromAPI(address: string): Promise<EthosData> {
-  const response = await fetch(`${API_URL}/api/check-access`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ address })
-  });
+function getTierFromScore(score: number): string {
+  if (score >= 1600) return "ELITE";
+  if (score >= 1200) return "TRUSTED";
+  if (score >= 800) return "ESTABLISHED";
+  if (score >= 400) return "BUILDING";
+  return "NEW";
+}
 
-  if (!response.ok) {
-    throw new Error("Failed to fetch Ethos score");
+// Fetch directly from Ethos API (fallback when local API unavailable)
+async function fetchScoreFromEthosAPI(address: string): Promise<EthosData> {
+  let lastError: Error | null = null;
+
+  try {
+    const scoreResponse = await fetch(`${ETHOS_API_BASE}/score/address?address=${address}`, {
+      headers: {
+        "Accept": "application/json",
+        "X-Ethos-Client": "ethos-reputation-gate"
+      }
+    });
+
+    if (scoreResponse.ok) {
+      const result = await scoreResponse.json();
+      const score = result.score ?? 0;
+
+      return {
+        score,
+        vouches: 0,
+        reviews: 0,
+        tier: getTierFromScore(score),
+        loading: false,
+        error: null
+      };
+    }
+  } catch (err) {
+    lastError = err instanceof Error ? err : new Error("Unknown error");
   }
 
-  const result = await response.json();
+  // If all endpoints fail, return default with error
+  if (lastError) {
+    console.warn("[EthosGate] Failed to fetch score from Ethos API:", lastError.message);
+  }
 
   return {
-    score: result.score || 0,
-    vouches: result.vouches || 0,
-    reviews: result.reviews || 0,
-    tier: result.tier || "NEW",
+    score: 0,
+    vouches: 0,
+    reviews: 0,
+    tier: "NEW",
     loading: false,
-    error: null
+    error: lastError?.message || "Could not fetch score"
   };
+}
+
+// Try local API first, fall back to direct Ethos API
+async function fetchScoreFromAPI(address: string): Promise<EthosData> {
+  // Try local API first
+  try {
+    const response = await fetch(`${API_URL}/api/check-access`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ address })
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      const data: EthosData = {
+        score: result.score || 0,
+        vouches: result.vouches || 0,
+        reviews: result.reviews || 0,
+        tier: result.tier || "NEW",
+        loading: false,
+        error: null
+      };
+      if (data.score === 0 && data.vouches === 0 && data.reviews === 0) {
+        return fetchScoreFromEthosAPI(address);
+      }
+      return data;
+    }
+  } catch {
+    // Local API unavailable, fall through to Ethos API
+  }
+
+  // Fallback: fetch directly from Ethos API
+  return fetchScoreFromEthosAPI(address);
 }
 
 export function useEthosScore(address?: string): EthosData {
