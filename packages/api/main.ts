@@ -6,7 +6,20 @@ const app = new Application();
 const router = new Router();
 
 // Allowed origins for CORS - configure via environment variable
-const ALLOWED_ORIGINS = (Deno.env.get("ALLOWED_ORIGINS") || "http://localhost:5173,http://localhost:3000").split(",").map(o => o.trim());
+const rawAllowedOrigins = Deno.env.get("ALLOWED_ORIGINS");
+const isProd = (Deno.env.get("DENO_ENV") || "").toLowerCase() === "production";
+const ALLOWED_ORIGINS = (rawAllowedOrigins
+  ? rawAllowedOrigins.split(",")
+  : (isProd ? [] : ["http://localhost:5173", "http://localhost:3000"])
+).map(o => o.trim()).filter(Boolean).filter(o => o !== "*");
+
+if (rawAllowedOrigins?.includes("*")) {
+  console.warn("[CORS] Wildcard '*' is not allowed. Use explicit origins in ALLOWED_ORIGINS.");
+}
+
+if (isProd && ALLOWED_ORIGINS.length === 0) {
+  console.warn("[CORS] No ALLOWED_ORIGINS set in production. Requests with Origin will be blocked.");
+}
 
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const RATE_LIMIT_MAX = 60;
@@ -80,6 +93,7 @@ app.use(async (ctx, next) => {
   if (ctx.request.method === "POST" && ctx.request.url.pathname === "/api/check-access") {
     try {
       const body = await ctx.request.body({ type: "json" }).value;
+      ctx.state.parsedBody = body;
       const address = body?.address?.toLowerCase();
       if (address && /^0x[a-fA-F0-9]{40}$/.test(address)) {
         const addrEntry = rateLimitStore.get(`addr:${address}`);

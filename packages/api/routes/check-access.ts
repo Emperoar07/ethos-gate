@@ -6,7 +6,7 @@ export const checkAccessRouter = new Router();
 
 checkAccessRouter.post("/api/check-access", async (ctx) => {
   try {
-    const body = await ctx.request.body({ type: "json" }).value;
+    const body = ctx.state.parsedBody ?? await ctx.request.body({ type: "json" }).value;
 
     // Input validation
     if (!body || typeof body !== "object") {
@@ -96,6 +96,11 @@ checkAccessRouter.post("/api/check-access", async (ctx) => {
     };
 
     if (issueToken) {
+      if (!signature && !token) {
+        ctx.response.status = 401;
+        ctx.response.body = { error: "Signature required to issue token" };
+        return;
+      }
       response.token = await issueAccessToken({ address: resolvedAddress, score, tier });
     }
 

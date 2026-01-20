@@ -226,6 +226,13 @@ cd ethos-reputation-gate
 pnpm install
 ```
 
+Environment (API CORS):
+
+```bash
+# Comma-separated list of allowed origins for CORS
+ALLOWED_ORIGINS=https://your-demo.vercel.app,https://your-domain.com
+```
+
 Run Locally:
 
 ```bash
