@@ -13,6 +13,7 @@ export function DAOProposalDemo() {
   const [proposalTitle, setProposalTitle] = useState("");
   const [proposalDescription, setProposalDescription] = useState("");
   const [requestedAmount, setRequestedAmount] = useState("");
+  const [requestedCurrency, setRequestedCurrency] = useState<"USDC" | "ETH">("USDC");
   const ethAmount = 0.04;
 
   return (
@@ -61,7 +62,7 @@ export function DAOProposalDemo() {
             <ul className="text-sm text-yellow-800 space-y-1">
               <li className="flex items-center gap-2">
                 <span>REQ</span>
-                <span>Have TRUSTED tier reputation (1200+ score)</span>
+                <span>Have TRUSTED tier reputation (1350+ score)</span>
               </li>
               <li className="flex items-center gap-2">
                 <span>REQ</span>
@@ -112,7 +113,7 @@ export function DAOProposalDemo() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Requested Amount (USDC)</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Requested Amount</label>
               <div className="flex gap-2">
                 <input
                   type="number"
@@ -121,9 +122,14 @@ export function DAOProposalDemo() {
                   placeholder="50000"
                   className="flex-1 px-4 py-2 glass-pill border border-white/40 rounded-xl focus:ring-2 focus:ring-blue-300 focus:border-transparent"
                 />
-                <div className="px-4 py-2 glass-pill border border-white/40 rounded-xl text-slate-700 font-medium">
-                  USDC
-                </div>
+                <select
+                  value={requestedCurrency}
+                  onChange={(e) => setRequestedCurrency(e.target.value as "USDC" | "ETH")}
+                  className="px-4 py-2 glass-pill border border-white/40 rounded-xl text-slate-700 font-medium"
+                >
+                  <option value="USDC">USDC</option>
+                  <option value="ETH">ETH</option>
+                </select>
               </div>
             </div>
 
@@ -159,7 +165,9 @@ export function DAOProposalDemo() {
               </div>
               <div className="flex justify-between pt-2 border-t">
                 <span className="text-gray-600">Requested:</span>
-                <span className="font-semibold">${requestedAmount || "0"} USDC</span>
+                <span className="font-semibold">
+                  {requestedAmount || "0"} {requestedCurrency}
+                </span>
               </div>
             </div>
 
@@ -204,12 +212,12 @@ export function DAOProposalDemo() {
               <h3 className="font-semibold mb-3">Requirements</h3>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center gap-2">
-                  <span className={score >= 1200 ? "text-green-500" : "text-red-500"}>
-                    {score >= 1200 ? "OK" : "NO"}
+                  <span className={score >= 1350 ? "text-green-500" : "text-red-500"}>
+                    {score >= 1350 ? "OK" : "NO"}
                   </span>
                   <span>
-                    TRUSTED tier (1200+ score)
-                    {score < 1200 && score > 0 && <span className="text-gray-500"> - You have {score}</span>}
+                    TRUSTED tier (1350+ score)
+                    {score < 1350 && score > 0 && <span className="text-gray-500"> - You have {score}</span>}
                   </span>
                 </li>
                 <li className="flex items-center gap-2">
@@ -225,7 +233,7 @@ export function DAOProposalDemo() {
               </ul>
             </div>
 
-            <TrustGate minScore={1200} userScore={score}>
+            <TrustGate minScore={1350} userScore={score}>
               <PayButton
                 amount={100}
                 amounts={{ USDC: 100, ETH: ethAmount }}
