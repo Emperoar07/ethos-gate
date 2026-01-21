@@ -193,7 +193,7 @@ export function Landing() {
               <div className="text-slate-600">Trust Tiers</div>
             </div>
             <div className="glass-card rounded-2xl py-6">
-              <div className="text-4xl font-semibold text-slate-900 mb-2">6</div>
+              <div className="text-4xl font-semibold text-slate-900 mb-2">8</div>
               <div className="text-slate-600">Live Demos</div>
             </div>
             <div className="glass-card rounded-2xl py-6">

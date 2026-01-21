@@ -12,47 +12,18 @@ Ethos Reputation Gate is a React SDK that enables any app to gate features and p
 
 ---
 
-## 🚀 Quick Start
-
-```bash
-npm install @ethos/reputation-gate
-```
-
-```tsx
-import { EthosGate, PayButton } from '@ethos/reputation-gate'
-
-function MyApp() {
-  return (
-    <EthosGate minScore={1400}>
-      <PayButton amount={50} token="USDC" />
-    </EthosGate>
-  )
-}
-```
-
-→ View Live Demos
-
----
-
-## ✨ Features
-
-- 🛡️ Anti-Sybil Protection - Filter bots and scammers automatically
-- 💰 Payment Integration - USDC/ETH payments on Base with gas-free transactions
-- 🎯 Tiered Pricing - Reward high-reputation users with dynamic pricing
-- 📊 4 Trust Tiers - ELITE (1600+), TRUSTED (1200+), EMERGING (700+), NEW (0+)
-- 🔌 Drop-in Components - Works with any React app, no backend needed
-- ⚡ 5-Minute Setup - From install to production in minutes
-
-## 🎬 Demo Use Cases
+## Demo Use Cases
 
 | Demo | Description | Min Score | Payment |
 | --- | --- | --- | --- |
-| 🎟️ Event Access | Reputation-gated ticket sales | 1400 | $25 USDC |
-| 💼 Stake to Apply | Anti-sybil freelance hiring | 1200 | $10 stake |
-| 📅 Subscriptions | Tiered pricing (80% discount for ELITE) | 700 | $10-50/mo |
-| 🎨 NFT Allowlist | Dynamic mint pricing by tier | 700 | 0.01-0.15 ETH |
-| 🏛️ DAO Proposals | Governance with stake deposits | 1800 | $100 deposit |
-| 📝 Microtasks | Spam-free task posting | 1600 | $5 fee |
+| Event Access | Reputation-gated ticket sales | 1400 | $25 USDC |
+| Stake to Apply | Anti-sybil freelance hiring | 1200 | $10 stake |
+| Subscriptions | Tiered pricing (80% discount for ELITE) | 700 | $10-50/mo |
+| NFT Allowlist | Dynamic mint pricing by tier | 700 | 0.01-0.15 ETH |
+| Microtasks | Spam-free task posting | 1600 | $5 fee |
+| P2P Lending | Reputation-backed crypto loans | 1200+ | ETH or USDC collateral |
+| DeFi Vault | Reputation-based yield vault | 1200+ | USDC or ETH deposit |
+| Beta Access | Credibility-gated product access | 1000+ | None |
 
 ---
 

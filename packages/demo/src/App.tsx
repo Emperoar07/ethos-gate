@@ -23,7 +23,7 @@ function AppContent() {
 
   return (
     <>
-      {showSplash && <SplashScreen onComplete={handleSplashComplete} duration={2500} />}
+      {showSplash && <SplashScreen onComplete={handleSplashComplete} duration={7000} />}
       <div className={`min-h-screen bg-transparent ${showSplash ? "opacity-0" : "animate-fade-in"}`}>
         <Navbar />
         <Routes>

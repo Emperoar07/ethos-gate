@@ -4,7 +4,6 @@ import { EventAccessDemo } from "../demos/EventAccess";
 import { StakeToApplyDemo } from "../demos/StakeToApply";
 import { SubscriptionDemo } from "../demos/Subscription";
 import { NFTAllowlistDemo } from "../demos/NFTAllowlist";
-import { DAOProposalDemo } from "../demos/DAOProposal";
 import { MicrotasksDemo } from "../demos/Microtasks";
 import { P2PLendingDemo } from "../demos/P2PLending";
 import { DeFiVaultDemo } from "../demos/DeFiVault";
@@ -38,13 +37,6 @@ const DEMOS = [
     icon: "\uD83D\uDDBC\uFE0F",
     component: NFTAllowlistDemo,
     description: "Dynamic mint pricing by credibility"
-  },
-  {
-    id: "dao",
-    name: "DAO Proposal",
-    icon: "\uD83C\uDFDB\uFE0F",
-    component: DAOProposalDemo,
-    description: "Governance proposals with stake deposits"
   },
   {
     id: "tasks",
@@ -94,7 +86,7 @@ export function Demos() {
           </div>
           <h1 className="text-4xl sm:text-5xl font-semibold mt-4 mb-4 text-slate-900">Ethos Gate Demos</h1>
           <p className="text-lg text-slate-600 mb-2">
-            See Ethos Reputation Gate in action across 9 different use cases.
+            See Ethos Reputation Gate in action across 8 different use cases.
           </p>
           <p className="text-sm text-slate-500">Connect your wallet to interact with real Ethos data.</p>
         </div>
@@ -178,7 +170,7 @@ export function Demos() {
           </div>
           <div className="mt-6 grid sm:grid-cols-3 gap-4 text-center">
             <div className="glass-pill rounded-2xl p-4">
-              <div className="text-2xl font-semibold text-slate-900">9</div>
+              <div className="text-2xl font-semibold text-slate-900">8</div>
               <div className="text-xs text-slate-600">Live Demos</div>
             </div>
             <div className="glass-pill rounded-2xl p-4">

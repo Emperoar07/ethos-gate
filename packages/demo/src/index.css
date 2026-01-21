@@ -352,8 +352,14 @@ pre {
     transform: rotate(0deg) translateX(80px) rotate(0deg);
     opacity: 1;
   }
+  25% {
+    opacity: 0.3;
+  }
   50% {
-    opacity: 0.5;
+    opacity: 0.8;
+  }
+  75% {
+    opacity: 0.4;
   }
   100% {
     transform: rotate(360deg) translateX(80px) rotate(-360deg);

@@ -18,7 +18,7 @@ export function SplashScreen({ onComplete, duration = 3000 }: SplashScreenProps)
     const completeTimer = setTimeout(() => {
       setPhase("done");
       onComplete();
-    }, duration + 800);
+    }, duration + 1200);
 
     return () => {
       clearTimeout(splitTimer);
@@ -55,7 +55,7 @@ export function SplashScreen({ onComplete, duration = 3000 }: SplashScreenProps)
               background: `linear-gradient(90deg, transparent, #3b82f6, #60a5fa, #3b82f6, transparent)`,
               borderRadius: "2px",
               opacity: 0,
-              animation: `spark 0.8s ease-out ${i * 0.3}s infinite`,
+              animation: `spark 1.2s ease-out ${i * 0.4}s infinite`,
               transform: `rotate(${i * 60}deg)`,
               transformOrigin: "center",
               filter: "blur(1px)",
@@ -73,7 +73,7 @@ export function SplashScreen({ onComplete, duration = 3000 }: SplashScreenProps)
           height: "300px",
           borderRadius: "50%",
           background: "radial-gradient(circle, rgba(59,130,246,0.3) 0%, rgba(99,102,241,0.1) 50%, transparent 70%)",
-          animation: "electric-glow 0.5s ease-in-out infinite alternate",
+          animation: "electric-glow 1s ease-in-out infinite alternate",
           filter: "blur(40px)",
         }}
       />
@@ -95,7 +95,7 @@ export function SplashScreen({ onComplete, duration = 3000 }: SplashScreenProps)
             position: "absolute",
             clipPath: "inset(0 50% 0 0)",
             animation: phase === "split"
-              ? "logo-split-left 0.8s ease-in-out forwards"
+              ? "logo-split-left 1.2s ease-in-out forwards"
               : "electric-buzz 0.1s ease-in-out infinite",
           }}
         >
@@ -109,7 +109,7 @@ export function SplashScreen({ onComplete, duration = 3000 }: SplashScreenProps)
             position: "absolute",
             clipPath: "inset(0 0 0 50%)",
             animation: phase === "split"
-              ? "logo-split-right 0.8s ease-in-out forwards"
+              ? "logo-split-right 1.2s ease-in-out forwards"
               : "electric-buzz 0.1s ease-in-out infinite reverse",
           }}
         >
@@ -129,7 +129,7 @@ export function SplashScreen({ onComplete, duration = 3000 }: SplashScreenProps)
                   borderRadius: "50%",
                   background: "#60a5fa",
                   boxShadow: "0 0 10px #3b82f6, 0 0 20px #3b82f6",
-                  animation: `particle-orbit 2s linear ${i * 0.15}s infinite`,
+                  animation: `particle-orbit 3.5s linear ${i * 0.2}s infinite`,
                   transformOrigin: "100px center",
                 }}
               />
