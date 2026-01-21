@@ -6,6 +6,9 @@ import { SubscriptionDemo } from "../demos/Subscription";
 import { NFTAllowlistDemo } from "../demos/NFTAllowlist";
 import { DAOProposalDemo } from "../demos/DAOProposal";
 import { MicrotasksDemo } from "../demos/Microtasks";
+import { P2PLendingDemo } from "../demos/P2PLending";
+import { DeFiVaultDemo } from "../demos/DeFiVault";
+import { BetaAccessDemo } from "../demos/BetaAccess";
 
 const DEMOS = [
   {
@@ -49,6 +52,27 @@ const DEMOS = [
     icon: "\u2705",
     component: MicrotasksDemo,
     description: "Spam-free task posting platform"
+  },
+  {
+    id: "p2p-lending",
+    name: "P2P Lending",
+    icon: "\uD83E\uDD1D",
+    component: P2PLendingDemo,
+    description: "Reputation-backed peer-to-peer crypto loans"
+  },
+  {
+    id: "defi-vault",
+    name: "DeFi Vault",
+    icon: "\uD83C\uDFE6",
+    component: DeFiVaultDemo,
+    description: "Higher APY and deposit limits for trusted users"
+  },
+  {
+    id: "beta-access",
+    name: "Beta Access",
+    icon: "\uD83D\uDE80",
+    component: BetaAccessDemo,
+    description: "Early access to features for trusted users"
   }
 ];
 
@@ -70,7 +94,7 @@ export function Demos() {
           </div>
           <h1 className="text-4xl sm:text-5xl font-semibold mt-4 mb-4 text-slate-900">Ethos Gate Demos</h1>
           <p className="text-lg text-slate-600 mb-2">
-            See Ethos Reputation Gate in action across 6 different use cases.
+            See Ethos Reputation Gate in action across 9 different use cases.
           </p>
           <p className="text-sm text-slate-500">Connect your wallet to interact with real Ethos data.</p>
         </div>
@@ -154,7 +178,7 @@ export function Demos() {
           </div>
           <div className="mt-6 grid sm:grid-cols-3 gap-4 text-center">
             <div className="glass-pill rounded-2xl p-4">
-              <div className="text-2xl font-semibold text-slate-900">6</div>
+              <div className="text-2xl font-semibold text-slate-900">9</div>
               <div className="text-xs text-slate-600">Live Demos</div>
             </div>
             <div className="glass-pill rounded-2xl p-4">

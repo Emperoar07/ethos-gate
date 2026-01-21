@@ -106,10 +106,17 @@ export function validateAndNormalizeAddress(address: string): string {
   }
 
   try {
-    // getAddress validates checksum and returns checksummed address
-    // If checksum is invalid but address is otherwise valid, it still returns checksummed version
-    return getAddress(address);
-  } catch {
+    // getAddress returns the checksummed address; enforce checksum if mixed-case input
+    const checksummed = getAddress(address);
+    const hasMixedCase = /[a-f]/.test(address) && /[A-F]/.test(address);
+    if (hasMixedCase && checksummed !== address) {
+      throw new AuthError(400, "Invalid Ethereum address checksum");
+    }
+    return checksummed;
+  } catch (error) {
+    if (error instanceof AuthError) {
+      throw error;
+    }
     throw new AuthError(400, "Invalid Ethereum address");
   }
 }

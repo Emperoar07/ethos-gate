@@ -76,6 +76,8 @@ function getRateLimitEntry(key: string, now: number, maxCount: number): { allowe
   }
 
   entry.count += 1;
+  // Move to end (most recently used) to keep insertion order fresh
+  rateLimitStore.delete(key);
   rateLimitStore.set(key, entry);
   return { allowed: true, remaining: maxCount - entry.count };
 }

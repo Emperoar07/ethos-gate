@@ -99,7 +99,10 @@ function getTierFromScore(score: number): string {
 // Fetch directly from Ethos API (fallback when local API unavailable)
 async function fetchScoreFromEthosAPI(address: string): Promise<EthosData> {
   const apiUrl = `${ETHOS_API_BASE}/score/address?address=${address}`;
-  console.log("[EthosGate] Fetching score from Ethos API:", apiUrl);
+  const debug = (import.meta.env?.VITE_ETHOS_DEBUG ?? "false") === "true";
+  if (debug) {
+    console.log("[EthosGate] Fetching score from Ethos API:", apiUrl);
+  }
 
   try {
     const scoreResponse = await fetchWithTimeout(apiUrl, {
@@ -110,11 +113,15 @@ async function fetchScoreFromEthosAPI(address: string): Promise<EthosData> {
     });
 
     const responseText = await scoreResponse.text();
-    console.log("[EthosGate] API Response status:", scoreResponse.status, "body:", responseText);
+    if (debug) {
+      console.log("[EthosGate] API Response status:", scoreResponse.status, "body:", responseText);
+    }
 
     // 404 means wallet is not registered with Ethos
     if (scoreResponse.status === 404) {
-      console.log("[EthosGate] Wallet not registered with Ethos");
+      if (debug) {
+        console.log("[EthosGate] Wallet not registered with Ethos");
+      }
       return {
         score: 0,
         vouches: 0,
@@ -131,7 +138,9 @@ async function fetchScoreFromEthosAPI(address: string): Promise<EthosData> {
         const result = JSON.parse(responseText);
         const score = result.score ?? 0;
 
-        console.log("[EthosGate] Parsed score:", score, "full result:", result);
+        if (debug) {
+          console.log("[EthosGate] Parsed score:", score, "full result:", result);
+        }
 
         // Check if user actually has a profile (score > 0 or explicit registration)
         const isRegistered = score > 0 || result.level !== undefined;
@@ -149,11 +158,15 @@ async function fetchScoreFromEthosAPI(address: string): Promise<EthosData> {
         console.error("[EthosGate] Failed to parse API response:", parseErr);
       }
     } else {
-      console.warn("[EthosGate] API returned error status:", scoreResponse.status);
+      if (debug) {
+        console.warn("[EthosGate] API returned error status:", scoreResponse.status);
+      }
     }
   } catch (err) {
     const isTimeout = err instanceof Error && err.name === "AbortError";
-    console.error("[EthosGate] Failed to fetch score from Ethos API:", isTimeout ? "Request timed out" : err);
+    if (debug) {
+      console.error("[EthosGate] Failed to fetch score from Ethos API:", isTimeout ? "Request timed out" : err);
+    }
   }
 
   return {

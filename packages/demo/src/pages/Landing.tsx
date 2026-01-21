@@ -112,14 +112,68 @@ export function Landing() {
           </div>
 
           <div className="max-w-3xl mx-auto">
-            <div className="glass-card rounded-2xl p-6 mb-8 bg-[#0b1f16] border border-[#1f3b2b] shadow-[0_18px_50px_rgba(11,31,22,0.35)]">
-              <pre className="text-green-300 font-mono text-sm overflow-x-auto">{`npm install @ethos/reputation-gate
-
-import { EthosGate, PayButton } from '@ethos/reputation-gate'
-
-<EthosGate preset="VOTE">
-  <PayButton amount={50} token="USDC" />
-</EthosGate>`}</pre>
+            {/* Terminal-style code block */}
+            <div className="rounded-2xl overflow-hidden mb-8 shadow-[0_20px_60px_rgba(0,0,0,0.4)]">
+              {/* Terminal header */}
+              <div className="bg-[#1e293b] px-4 py-3 flex items-center gap-2">
+                <div className="flex gap-2">
+                  <div className="w-3 h-3 rounded-full bg-[#ef4444]" />
+                  <div className="w-3 h-3 rounded-full bg-[#eab308]" />
+                  <div className="w-3 h-3 rounded-full bg-[#22c55e]" />
+                </div>
+                <span className="ml-4 text-slate-400 text-sm font-mono">MyApp.tsx</span>
+              </div>
+              {/* Code content */}
+              <div className="bg-[#0f172a] p-6">
+                <pre className="font-mono text-sm leading-relaxed overflow-x-auto">
+                  <code>
+                    <span className="text-purple-400">import</span>
+                    <span className="text-slate-300">{" { "}</span>
+                    <span className="text-cyan-300">EthosGate</span>
+                    <span className="text-slate-300">{", "}</span>
+                    <span className="text-cyan-300">PayButton</span>
+                    <span className="text-slate-300">{" } "}</span>
+                    <span className="text-purple-400">from</span>
+                    <span className="text-emerald-400">{" '@ethos/reputation-gate'"}</span>
+                    {"\n\n"}
+                    <span className="text-purple-400">function</span>
+                    <span className="text-blue-300">{" MyApp"}</span>
+                    <span className="text-slate-300">{"() {"}</span>
+                    {"\n"}
+                    <span className="text-slate-300">{"  "}</span>
+                    <span className="text-purple-400">return</span>
+                    <span className="text-slate-300">{" ("}</span>
+                    {"\n"}
+                    <span className="text-slate-300">{"    <"}</span>
+                    <span className="text-cyan-300">EthosGate</span>
+                    <span className="text-slate-300">{" "}</span>
+                    <span className="text-yellow-300">minScore</span>
+                    <span className="text-slate-300">{"={"}</span>
+                    <span className="text-orange-400">1400</span>
+                    <span className="text-slate-300">{"}>"}</span>
+                    {"\n"}
+                    <span className="text-slate-300">{"      <"}</span>
+                    <span className="text-cyan-300">PayButton</span>
+                    <span className="text-slate-300">{" "}</span>
+                    <span className="text-yellow-300">amount</span>
+                    <span className="text-slate-300">{"={"}</span>
+                    <span className="text-orange-400">50</span>
+                    <span className="text-slate-300">{"} "}</span>
+                    <span className="text-yellow-300">token</span>
+                    <span className="text-slate-300">{"="}</span>
+                    <span className="text-emerald-400">"USDC"</span>
+                    <span className="text-slate-300">{" />"}</span>
+                    {"\n"}
+                    <span className="text-slate-300">{"    </"}</span>
+                    <span className="text-cyan-300">EthosGate</span>
+                    <span className="text-slate-300">{">"}</span>
+                    {"\n"}
+                    <span className="text-slate-300">{"  )"}</span>
+                    {"\n"}
+                    <span className="text-slate-300">{"}"}</span>
+                  </code>
+                </pre>
+              </div>
             </div>
 
             <div className="text-center">
