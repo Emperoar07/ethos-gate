@@ -45,6 +45,8 @@ export function P2PLendingDemo() {
   const [lendDuration, setLendDuration] = useState("30");
   const [lendMinScore, setLendMinScore] = useState("1200");
 
+  const parsedLendMinScore = Math.max(0, Math.min(2000, Number(lendMinScore) || 0));
+
   const eligibleOffers = LOAN_OFFERS.filter((offer) => score >= offer.minScore);
   const filteredOffers = filterCurrency === "all"
     ? LOAN_OFFERS
@@ -390,6 +392,8 @@ export function P2PLendingDemo() {
                 type="number"
                 value={lendMinScore}
                 onChange={(e) => setLendMinScore(e.target.value)}
+                min={0}
+                max={2000}
                 placeholder="1200"
                 className="w-full bg-white/50 rounded-lg px-4 py-2 border border-white/40"
               />
@@ -410,6 +414,10 @@ export function P2PLendingDemo() {
                       {(parseFloat(lendAmount || "0") * (1 + (parseFloat(lendApr || "0") / 100) * (parseFloat(lendDuration || "0") / 365))).toFixed(lendCurrency === "ETH" ? 4 : 2)} {lendCurrency}
                     </span>
                   </div>
+                  <div className="flex justify-between">
+                    <span>Min borrower score:</span>
+                    <span className="font-medium">{parsedLendMinScore}</span>
+                  </div>
                 </div>
               </div>
             )}
@@ -425,7 +433,7 @@ export function P2PLendingDemo() {
               tokens={[lendCurrency]}
               recipient={TREASURY_ADDRESS}
               label={() => `Create Offer - Deposit ${lendAmount || "0"} ${lendCurrency}`}
-              onSuccess={() => toast.success("Lending offer created! Waiting for borrowers.")}
+              onSuccess={() => toast.success(`Offer created! Min borrower score: ${parsedLendMinScore}.`)}
               onError={(error) => toast.error(`Failed: ${error.message}`)}
               className="w-full"
               disabled={!lendAmount || parseFloat(lendAmount) <= 0}

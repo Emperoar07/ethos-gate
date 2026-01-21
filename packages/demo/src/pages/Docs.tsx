@@ -1,4 +1,4 @@
-﻿import type { ReactNode } from "react";
+﻿import { useState, type ReactNode } from "react";
 
 export function Docs() {
   return (
@@ -317,8 +317,8 @@ const requiredScore = calculateRequiredScore({
               The SDK automatically connects to the Ethos Reputation Gate API. You can also use it directly:
             </p>
 
-            <div className="bg-gray-900 rounded-lg p-4 mb-4">
-              <code className="text-green-400 text-sm">POST https://api.ethosgate.xyz/api/check-access</code>
+            <div className="mb-4">
+              <CodeBlock language="bash">{"POST https://api.ethosgate.xyz/api/check-access"}</CodeBlock>
             </div>
 
             <div className="text-sm">
@@ -349,7 +349,7 @@ const requiredScore = calculateRequiredScore({
             <div className="space-y-3 text-sm">
               <div>
                 <div className="font-semibold">Address:</div>
-                <code className="text-xs bg-gray-100 px-2 py-1 rounded">0x... (deployed address)</code>
+                <CodeBlock language="text">{"0x... (deployed address)"}</CodeBlock>
               </div>
 
               <div>
@@ -419,11 +419,69 @@ function SubSection({ title, children }: { title: string; children: ReactNode })
   );
 }
 
-function CodeBlock({ children }: { language: string; children: string }) {
+function CodeBlock({ language, children }: { language: string; children: string }) {
+  const [copiedLine, setCopiedLine] = useState<number | null>(null);
+  const lines = children.replace(/
+$/, "").split("
+");
+
+  const handleCopy = async (text: string, lineIndex: number) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedLine(lineIndex);
+      window.setTimeout(() => setCopiedLine(null), 1200);
+    } catch {
+      setCopiedLine(lineIndex);
+      window.setTimeout(() => setCopiedLine(null), 1200);
+    }
+  };
+
   return (
-    <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto font-mono text-sm">
-      <code>{children}</code>
-    </pre>
+    <div className="rounded-2xl overflow-hidden border border-white/10 bg-[#0b0f1a] shadow-[0_25px_60px_rgba(15,23,42,0.35)]">
+      <div className="flex items-center justify-between px-4 py-2 bg-black/40 border-b border-white/10">
+        <div className="flex items-center gap-2 text-xs uppercase tracking-[0.35em] text-emerald-200/70">
+          <span className="w-2 h-2 rounded-full bg-emerald-400/80" />
+          <span>{language}</span>
+        </div>
+        <span className="text-[11px] text-emerald-200/60">Terminal</span>
+      </div>
+      <div className="font-mono text-sm text-emerald-200">
+        {lines.map((line, index) => (
+          <div
+            key={`${index}-${line}`}
+            className="group flex items-start gap-3 px-4 py-2 hover:bg-emerald-500/5"
+          >
+            <span className="w-6 text-right text-emerald-300/40">{index + 1}</span>
+            <pre className="flex-1 whitespace-pre-wrap break-words">{line || " "}</pre>
+            <button
+              type="button"
+              onClick={() => handleCopy(line, index)}
+              className="opacity-0 group-hover:opacity-100 transition-opacity text-emerald-200/70 hover:text-emerald-200"
+              aria-label={`Copy line ${index + 1}`}
+              title="Copy line"
+            >
+              {copiedLine === index ? (
+                <span className="text-[11px] uppercase tracking-widest">Copied</span>
+              ) : (
+                <svg
+                  viewBox="0 0 24 24"
+                  width="16"
+                  height="16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect x="9" y="9" width="13" height="13" rx="2" />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+              )}
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }
 
