@@ -421,9 +421,7 @@ function SubSection({ title, children }: { title: string; children: ReactNode })
 
 function CodeBlock({ language, children }: { language: string; children: string }) {
   const [copiedLine, setCopiedLine] = useState<number | null>(null);
-  const lines = children.replace(/
-$/, "").split("
-");
+  const lines = children.replace(/\n$/, "").split("\n");
 
   const handleCopy = async (text: string, lineIndex: number) => {
     try {
