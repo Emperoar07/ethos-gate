@@ -1,6 +1,6 @@
 {
   "installCommand": "pnpm install",
-  "buildCommand": "pnpm --filter ethos-demo build",
+  "buildCommand": "pnpm --filter @ethos/reputation-gate build && pnpm --filter ethos-demo build",
   "outputDirectory": "packages/demo/dist",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
