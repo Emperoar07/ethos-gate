@@ -18,20 +18,67 @@ export function Docs() {
         </div>
 
         <Section title="Quick Start">
-          <SubSection title="Installation">
-            <CodeBlock language="bash">{"npm install @ethos/reputation-gate"}</CodeBlock>
+          <SubSection title="1. Install Packages">
+            <CodeBlock language="bash">{`npm install @ethos/reputation-gate wagmi viem @tanstack/react-query
+npm install @rainbow-me/rainbowkit  # Optional: for wallet UI`}</CodeBlock>
           </SubSection>
 
-          <SubSection title="Basic Usage">
-            <CodeBlock language="tsx">{`import { EthosGate, PayButton } from '@ethos/reputation-gate'
+          <SubSection title="2. Setup Providers (main.tsx)">
+            <CodeBlock language="tsx">{`import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { WagmiProvider, createConfig, http } from 'wagmi'
+import { baseSepolia } from 'wagmi/chains'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { RainbowKitProvider } from '@rainbow-me/rainbowkit'
+import App from './App'
+import '@rainbow-me/rainbowkit/styles.css'
 
-function MyApp() {
+const config = createConfig({
+  chains: [baseSepolia],
+  transports: { [baseSepolia.id]: http() },
+})
+
+const queryClient = new QueryClient()
+
+ReactDOM.createRoot(document.getElementById('root')!).render(
+  <WagmiProvider config={config}>
+    <QueryClientProvider client={queryClient}>
+      <RainbowKitProvider>
+        <App />
+      </RainbowKitProvider>
+    </QueryClientProvider>
+  </WagmiProvider>
+)`}</CodeBlock>
+          </SubSection>
+
+          <SubSection title="3. Use in Your App">
+            <CodeBlock language="tsx">{`import { EthosGate, PayButton, TrustBadge, useEthosScore } from '@ethos/reputation-gate'
+import { ConnectButton } from '@rainbow-me/rainbowkit'
+import { useAccount } from 'wagmi'
+
+function App() {
+  const { address } = useAccount()
+  const { score } = useEthosScore(address)
+
   return (
-    <EthosGate minScore={1400}>
-      <PayButton amount={50} token="USDC" />
-    </EthosGate>
+    <div>
+      <header>
+        <ConnectButton />
+        {address && <TrustBadge score={score} showScore />}
+      </header>
+
+      <EthosGate minScore={1400}>
+        <PayButton amount={50} token="USDC" recipient="0x..." />
+      </EthosGate>
+    </div>
   )
 }`}</CodeBlock>
+          </SubSection>
+
+          <SubSection title="4. Environment Variables">
+            <CodeBlock language="bash">{`# .env
+VITE_TREASURY_ADDRESS=0x...  # Where payments go
+VITE_API_URL=http://localhost:8000  # Optional: custom API`}</CodeBlock>
           </SubSection>
         </Section>
 
@@ -57,16 +104,28 @@ function MyApp() {
             description="Payment button with USDC/ETH support on Base"
             props={[
               { name: "amount", type: "number", required: true, description: "Payment amount" },
-              { name: "token", type: '"USDC" | "ETH"', default: '"USDC"', description: "Token to use" },
-              { name: "label", type: "string", description: "Button text" },
+              { name: "amounts", type: "{ USDC?: number, ETH?: number }", description: "Multi-token amounts" },
+              { name: "tokens", type: '("USDC" | "ETH")[]', default: '["USDC"]', description: "Available tokens" },
+              { name: "recipient", type: "string", required: true, description: "Payment recipient address" },
+              { name: "label", type: "string | (token, amount) => string", description: "Button text" },
               { name: "onSuccess", type: "() => void", description: "Success callback" },
               { name: "onError", type: "(error: Error) => void", description: "Error callback" },
               { name: "disabled", type: "boolean", default: "false", description: "Disable button" }
             ]}
-            example={`<PayButton
+            example={`// Single token
+<PayButton
   amount={50}
-  token="USDC"
-  onSuccess={() => alert('Payment successful!')}
+  tokens={["USDC"]}
+  recipient="0x..."
+  onSuccess={() => alert('Paid!')}
+/>
+
+// Multi-token selector
+<PayButton
+  amounts={{ USDC: 50, ETH: 0.02 }}
+  tokens={["USDC", "ETH"]}
+  recipient="0x..."
+  label={(token, amount) => \`Pay \${amount} \${token}\`}
 />`}
           />
 
