@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAccount } from "wagmi";
-import { TrustBadge, getTrustTier, useEthosScore, EthosGate } from "@ethos/reputation-gate";
+import { TrustBadge, useEthosScore, EthosGate } from "@ethos/reputation-gate";
 import toast from "react-hot-toast";
 
 interface Feature {
@@ -73,7 +73,6 @@ const STATUS_COLORS = {
 export function BetaAccessDemo() {
   const { address } = useAccount();
   const { score } = useEthosScore(address);
-  const tier = getTrustTier(score);
   const [joinedFeatures, setJoinedFeatures] = useState<Set<string>>(new Set());
 
   const unlockedCount = FEATURES.filter((f) => score >= f.minScore).length;

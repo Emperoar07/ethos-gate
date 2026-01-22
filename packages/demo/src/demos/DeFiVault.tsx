@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useAccount } from "wagmi";
-import { PayButton, TrustBadge, getTrustTier, useEthosScore } from "@ethos/reputation-gate";
+import { PayButton, TrustBadge, useEthosScore } from "@ethos/reputation-gate";
 import TrustGate from "../components/TrustGate";
 import toast from "react-hot-toast";
 
@@ -28,7 +28,6 @@ const VAULT_TIERS: VaultTier[] = [
 export function DeFiVaultDemo() {
   const { address } = useAccount();
   const { score } = useEthosScore(address);
-  const tier = getTrustTier(score);
   const [depositAmount, setDepositAmount] = useState<string>("1000");
   const [isDeposited, setIsDeposited] = useState(false);
   const [selectedToken, setSelectedToken] = useState<"USDC" | "ETH">("USDC");

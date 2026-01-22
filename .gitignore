@@ -42,3 +42,4 @@ coverage/
 
 # Ignore Windows NUL sentinel
 nul
+.vercel
