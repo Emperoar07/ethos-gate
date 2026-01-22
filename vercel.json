@@ -1,5 +1,8 @@
 {
   "installCommand": "pnpm install",
   "buildCommand": "pnpm --filter ethos-demo build",
-  "outputDirectory": "packages/demo/dist"
+  "outputDirectory": "packages/demo/dist",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
 }
